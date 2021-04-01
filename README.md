@@ -23,7 +23,7 @@ npm install xes-vue-viewer --save
 | close-on-press-escape | 是否可以通过按下 ESC 关闭 ImageViewer                | boolean         | true   |
 | initial-index         | 默认打开的图片索引                                   | number          | 0      |
 | on-switch             | 切换回调                                             | function(index) | -      |
-| options               | {showPNBar: false, initialSizeBar: false} 是否展示上下一页按钮,图片初始大小 | object | false      |
+| showPreNextBar        | 是否展示上下一页按钮                      | boolean | false      |
 ## Keyboard Operation
 
 | Keyboard               | 说明                       |
@@ -44,18 +44,22 @@ npm install xes-vue-viewer --save
       v-model="showViewer"
       :initial-index="imageIndex"
       close-on-click-mask
-      :closeOnPressEscape="false"
+      :show-pre-next-bar="false"
+      :close-on-press-escape="false"
       :img-list="imgList"
     />
   </div>
 </template>
 
 <script>
-import ImgsViewer from 'xes-vue-viewer'
-import 'xes-vue-viewer/dist/index.css'
+import xesImageViewer from 'xes-vue-viewer';
+import 'xes-vue-viewer/dist/index.css';
 export default {
-  components: { ImgsViewer },
+  components: {
+      xesImageViewer
+  },
   data() {
+
     return {
       showViewer: false,
       imageIndex: 0,
