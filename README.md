@@ -1,57 +1,79 @@
 # xes-vue-viewer
 
-这是一款基于 vue 框架开发的基础 UI 组件，主要包括 toast 和 dialog 插件，后续会不断拓展。
-效果图如下：
-<img src="./static/toast.png">
+一个 vue2 图片预览组件，支持切换、旋转、缩放等功能，不依赖其他三方库，可以直接使用。
+注: rollup不适合使用在有图片的工程中
+## 安装
 
-## 功能
+```sh
+# Yarn
+yarn add xes-vue-viewer
 
-- toast 组件
-- dialog 组件
-
-可以手机扫码二维码看看效果图
-<img src="./static/qrcode.png">
-## 用法
-
-1. 安装依赖
-
-```
-npm install --save xes-vue-viewer
+# Npm
+npm install xes-vue-viewer --save
 ```
 
-2. 引入并使用
+## Attribute
 
-```js
-import Viewer  from 'xes-vue-viewer'
-Vue.use(Viewer)
+| 参数                  | 说明                                                 | 类型            | 默认值 |
+| --------------------- | ---------------------------------------------------- | --------------- | ------ |
+| v-model               | 显示隐藏                                             | boolean         | false  |
+| img-list              | 图片数据列表['url'] 或[{url: 'url', title: 'title'}] | array           | -      |
+| z-index               | css 层级                                             | number          | 2000   |
+| close-on-click-mask   | 是否可以通过点击遮罩关闭 ImageViewer                 | boolean         | true  |
+| close-on-press-escape | 是否可以通过按下 ESC 关闭 ImageViewer                | boolean         | true   |
+| initial-index         | 默认打开的图片索引                                   | number          | 0      |
+| on-switch             | 切换回调                                             | function(index) | -      |
+| options               | {showPNBar: false, initialSizeBar: false} 是否展示上下一页按钮,图片初始大小 | object | false      |
+## Keyboard Operation
+
+| Keyboard               | 说明                       |
+| ---------------------- | -------------------------- |
+| SPACE(空格键)          | 切换原图大小或屏幕缩放大小 |
+| LEFT_ARROW(左方向键)   | 切换到上一张图片          |
+| RIGHT_ARROW (右方向键) | 切换到下一张图片          |
+| UP_ARROW(上方向键)     | 放大图片                 |
+| DOWN_ARROW(下方向键)   | 缩小图片                 |
+
+## 示例
+
+```vue
+<template>
+  <div>
+    <button @click="showViewer = true">预览图片</button>
+    <xes-imgs-viewer
+      v-model="showViewer"
+      :initial-index="imageIndex"
+      close-on-click-mask
+      :closeOnPressEscape="false"
+      :img-list="imgList"
+    />
+  </div>
+</template>
+
+<script>
+import ImgsViewer from 'xes-vue-viewer'
+import 'xes-vue-viewer/dist/index.css'
+export default {
+  components: { ImgsViewer },
+  data() {
+    return {
+      showViewer: false,
+      imageIndex: 0,
+      imgList: [
+        {
+          url: '图片地址',
+          title: '图片名称', //可以没有
+        },
+        {
+          url: '图片地址',
+          title: '图片名称', //可以没有
+        },
+      ],
+    }
+  },
+  methods: {},
+}
+</script>
+
+<style></style>
 ```
-
-## toast
-
-### Props
-
-| name | type   | default | description                                                            |
-| ---- | ------ | ------- | ---------------------------------------------------------------------- |
-| msg  | String | ''      | 弹窗提示语                                                             |
-| type | String | ''      | 弹窗类型：success(成功提示),fail(失败提示),warning(警告),loading(加载) |
-
-
-## dialog
-
-### Props
-
-| name        | type   | default | description               |
-| ----------- | ------ | ------- | ------------------------- |
-| title       | String | ''      | 标题                      |
-| text        | String | ''      | 文本内容                  |
-| type        | String | ''      | 默认纯文本，input(输入框) |
-| maxlength   | Number | 20      | 输入的最多字数            |
-| confirmText | String | 确定    | 右边按钮                  |
-| cancelText  | String | 取消    | 左边按钮                  |
-
-### Events
-
-| name    | params | description  |
-| ------- | ------ | ------------ |
-| confirm | null   | 选择后的回调 |
-| cancel  | ull    | 取消后的回调 |
