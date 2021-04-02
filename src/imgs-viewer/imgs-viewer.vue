@@ -19,6 +19,7 @@
        <span
           class="image-viewer__btn image-viewer__prev"
           :class="{ 'is-disabled': !infinite && isFirst }"
+          v-bind:style="styleObject.arrowLeft"
           @click="prev"
         >
           <i class="imgs-viewer-icon imgs-viewer-icon-arrow-left-bold" />
@@ -26,6 +27,7 @@
         <span
           class="image-viewer__btn image-viewer__next"
           :class="{ 'is-disabled': !infinite && isLast }"
+          v-bind:style="styleObject.arrowRight"
           @click="next"
         >
           <i class="imgs-viewer-icon imgs-viewer-icon-arrow-right-bold" />
@@ -39,17 +41,25 @@
       <div class="image-viewer__btn image-viewer__actions">
         <div class="image-viewer__actions__inner">
           <!-- class="imgs-viewer-icon imgs-viewer-icon-refresh-left" -->
-          <i
-            class="icon left-rotation"
-            v-bind:style="styleObject.left"
-            @click="handleActions('anticlocelise')"
-          ></i>
-           <!-- class="imgs-viewer-icon imgs-viewer-icon-refresh-right" -->
-          <i
-            class="icon right-rotation"
-             v-bind:style="styleObject.right"
-            @click="handleActions('clocelise')"
-          ></i>
+          <div class="actions-block">
+             <i
+              class="icon left-rotation"
+              v-bind:style="styleObject.left"
+              @click="handleActions('anticlocelise')"
+            ></i>
+            <span class="font-tip">左旋转</span>
+          </div>
+          <div class="actions-block">
+            <!-- class="imgs-viewer-icon imgs-viewer-icon-refresh-right" -->
+            <i
+              class="icon right-rotation"
+              v-bind:style="styleObject.right"
+              @click="handleActions('clocelise')"
+            ></i>
+            <span class="font-tip">右旋转</span>
+          </div>
+
+
           <!-- <template  v-if="options.initialSizeBar">
             <i class="image-viewer__actions__divider"></i>
             <i
@@ -61,17 +71,25 @@
           </template> -->
           <i class="image-viewer__actions__divider"></i>
            <!-- class="imgs-viewer-icon imgs-viewer-icon-zoom-in" -->
-           <i
-            class="icon zoom-in"
-             v-bind:style="styleObject.zoomIn"
-            @click="handleActions('zoomOut')"
-          ></i>
-          <!-- class="imgs-viewer-icon imgs-viewer-icon-zoom-out" -->
-          <i
+           <div class="actions-block">
+              <i
             class="icon zoom-out"
              v-bind:style="styleObject.zoomOut"
             @click="handleActions('zoomIn')"
           ></i>
+            <span class="font-tip">放大</span>
+          </div>
+          <div class="actions-block">
+             <i
+            class="icon zoom-in"
+             v-bind:style="styleObject.zoomIn"
+            @click="handleActions('zoomOut')"
+          ></i>
+            <span class="font-tip">缩小</span>
+          </div>
+
+          <!-- class="imgs-viewer-icon imgs-viewer-icon-zoom-out" -->
+
         </div>
       </div>
       <!-- CANVAS -->
@@ -97,6 +115,8 @@ import rightRotation from '../assets/images/rightRotation.png'
 import zoomInPng from '../assets/images/zoomIn.png'
 import zoomOutPng from '../assets/images/zoomOut.png'
 import closePng from '../assets/images/viewerClose.png'
+import leftPng from '../assets/images/left.png'
+import rightPng from '../assets/images/right.png'
 import { on, off, rafThrottle, isFirefox } from '../utils/index'
 let prevOverflow = ''
 const Mode = {
@@ -127,7 +147,7 @@ export default {
     },
     closeOnClickMask: {
       type: Boolean,
-      default: true,
+      default: false,
     },
     closeOnPressEscape: {
       type: Boolean,
@@ -144,14 +164,18 @@ export default {
     showPreNextBar: {
       type: Boolean,
       default: false,
+    },
+    spaceAction: {
+      type: Boolean,
+      default: false,
     }
   },
   data() {
     return {
-      index: 0,
+      index: 1,
       isShow: false,
       infinite: true,
-      loading: false,
+      loading: true,
       mode: Mode.CONTAIN,
       transform: {
         scale: 1,
@@ -162,19 +186,25 @@ export default {
       },
       styleObject: {
         left: {
-           'background-image':'url('+leftRotation+')'
+          'background-image': 'url(' + leftRotation + ')'
         },
         right: {
-           'background-image':'url('+rightRotation+')'
+          'background-image': 'url(' + rightRotation + ')'
         },
         zoomIn: {
-           'background-image':'url('+zoomInPng+')'
+          'background-image': 'url(' + zoomInPng + ')'
         },
         zoomOut: {
-           'background-image':'url('+zoomOutPng+')'
+          'background-image': 'url(' + zoomOutPng + ')'
         },
         closeIcon: {
-           'background-image':'url('+closePng+')'
+          'background-image': 'url(' + closePng + ')'
+        },
+        arrowLeft: {
+          'background-image': 'url(' + leftPng + ')'
+        },
+        arrowRight: {
+          'background-image': 'url(' + rightPng + ')'
         }
 
       }
@@ -185,10 +215,10 @@ export default {
       return this.imgList.length <= 1
     },
     isFirst() {
-      return this.index === 0
+      return this.initialIndex === 0
     },
     isLast() {
-      return this.index === this.imgList.length - 1
+      return this.initialIndex === this.imgList.length - 1
     },
     isSimple() {
       return typeof this.imgList[0] === 'string'
@@ -196,16 +226,16 @@ export default {
     currentImg() {
       if (this.imgList.length) {
         if (this.isSimple) {
-          return this.imgList[this.index]
+          return this.imgList[this.initialIndex]
         } else {
-          return this.imgList[this.index].url
+          return this.imgList[this.initialIndex].url
         }
       }
       return null
     },
     currentTitle() {
       if (this.imgList.length && !this.isSimple) {
-        return this.imgList[this.index].title
+        return this.imgList[this.initialIndex].title
       }
       return ''
     },
@@ -245,7 +275,7 @@ export default {
     },
     initialIndex(i) {
       if (this.imgList.length && i < this.imgList.length) {
-        this.index = i
+        this.initialIndex = i
       }
     },
     index: {
@@ -277,7 +307,10 @@ export default {
             break
           // SPACE
           case 32:
-            this.toggleMode()
+            if (this.spaceAction) {
+              this.toggleMode()
+            }
+
             break
           // LEFT_ARROW
           case 37:
@@ -367,12 +400,12 @@ export default {
     prev() {
       if (this.isFirst && !this.infinite) return
       const len = this.imgList.length
-      this.index = (this.index - 1 + len) % len
+      this.initialIndex = (this.initialIndex - 1 + len) % len
     },
     next() {
       if (this.isLast && !this.infinite) return
       const len = this.imgList.length
-      this.index = (this.index + 1) % len
+      this.initialIndex = (this.initialIndex + 1) % len
     },
     handleActions(action, options = {}) {
       if (this.loading) return
@@ -408,7 +441,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '../assets/scss/iconfont.scss';
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.5s;
@@ -435,7 +467,7 @@ export default {
     top: 0;
     left: 0;
     opacity: 0.5;
-    background: #000;
+    background: #212831;
   }
   &__loading {
     position: absolute;
@@ -499,8 +531,8 @@ export default {
   &__prev {
     top: 50%;
     transform: translateY(-50%);
-    width: 44px;
-    height: 44px;
+    width: 24px;
+    height: 24px;
     font-size: 24px;
     color: #fff;
     background-color: #606266;
@@ -535,6 +567,13 @@ export default {
       display: flex;
       align-items: center;
       justify-content: space-around;
+      .actions-block {
+        height: 78px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
       .imgs-viewer-icon {
         font-size: 21px;
       }
@@ -542,6 +581,15 @@ export default {
         cursor: pointer;
         width: 28px;
         height: 28px;
+      }
+      span.font-tip {
+        height: 18px;
+        font-size: 14px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #ffffff;
+        line-height: 18px;
+        margin-top: 8px;
       }
     }
     &__divider {

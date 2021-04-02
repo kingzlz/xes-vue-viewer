@@ -9,7 +9,7 @@
 <body>
   <div id="app">
     <button @click="showViewer = true">预览图片</button>
-    <xes-image-viewer v-model="showViewer" :initial-index="imageIndex" :show-pre-next-bar="false" :close-on-press-escape="false" :img-list="imgList"/>
+    <xes-image-viewer v-model="showViewer" :initial-index="imageIndex" :show-pre-next-bar="true" :close-on-press-escape="false" :img-list="imgList"/>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script>
   <script src="../dist/xes-vue-viewer.umd.js"></script>
@@ -18,7 +18,7 @@
       el: '#app',
       data: {
         showViewer: false,
-        imageIndex: 1,
+        imageIndex: 0,
         imgList: [
           {
             title: '图片名称', //可以没有

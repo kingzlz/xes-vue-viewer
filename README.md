@@ -24,6 +24,7 @@ npm install xes-vue-viewer --save
 | initial-index         | 默认打开的图片索引                                   | number          | 0      |
 | on-switch             | 切换回调                                             | function(index) | -      |
 | showPreNextBar        | 是否展示上下一页按钮                      | boolean | false      |
+| spaceAction           | 按空格键是否恢复图片原始大小                      | boolean | false      |
 ## Keyboard Operation
 
 | Keyboard               | 说明                       |
